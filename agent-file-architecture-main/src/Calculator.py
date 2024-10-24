@@ -1,14 +1,13 @@
 import tkinter as tk
-
 import add_module
 import subtract_module
 import multiply_module
 import divide_module
-
-# import add_module # exe 변환시 add로 변경
-# import subtract_module # exe 변환시 subtract로 변경
-# import multiply_module # exe 변환시 multiply로 변경
-# import divide_module # exe 변환시 divide로 변경
+import math         # 제곱근 함수 sqlt를 사용하기 위해서 math 라이브러리 함수 import
+import binary_module# 이진수 모듈 추가
+import mod_module   # 나머지 모듈 추가
+import pow_module   # 거듭제곤 모듈 추가
+import sqrt_module  # 제곱근 모듈 추가
 
 def press_key(key):
     if key == "=":
@@ -26,6 +25,12 @@ def press_key(key):
             elif '/' in expression:
                 operands = expression.split('/')
                 result = divide_module.divide(float(operands[0]), float(operands[1]))
+            elif '^' in expression:  # 거듭제곱 연산 추가
+                operands = expression.split('^')
+                result = pow_module.power(float(operands[0]), float(operands[1]))
+            elif '%' in expression:  # 나머지 연산 추가
+                operands = expression.split('%')
+                result = mod_module.mod(float(operands[0]), float(operands[1]))
             else:
                 result = "Error"
             entry.delete(0, tk.END)
@@ -35,10 +40,29 @@ def press_key(key):
             entry.insert(tk.END, "Error")
     elif key == "C":
         entry.delete(0, tk.END)
+    elif key == "B": # 십진수를 이진수로 변경하는 연산 추가
+        try:
+            num = int(float(entry.get()))
+            result = binary_module.to_binary(num)
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, result)
+        except:
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, "Error")
+    
+    elif key == "√":  # 제곱근 연산 추가
+        try:
+            num = float(entry.get())
+            result = sqrt_module.sqrt(num)
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, str(result))
+        except:
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, "Error")
     else:
         entry.insert(tk.END, key)
 
-# 창 생성
+# GUI 창 생성
 root = tk.Tk()
 root.title("계산기")
 
@@ -51,9 +75,12 @@ buttons = [
     '7', '8', '9', '/',
     '4', '5', '6', '*',
     '1', '2', '3', '-',
-    '0', 'C', '=', '+'
+    '0', 'C', '=', '+',
+    'B', '√', '%', '^',
+      # 제곱근 버튼 추가
 ]
 
+# 버튼 생성 및 배치
 row_val = 1
 col_val = 0
 
@@ -67,16 +94,13 @@ for button in buttons:
 # GUI 루프 실행
 root.mainloop()
 
-
 # add.py
 def add_module(a, b):
     return a + b
 
-
 # subtract.py
 def subtract_module(a, b):
     return a - b
-
 
 # multiply.py
 def multiply_module(a, b):
@@ -89,3 +113,22 @@ def divide_module(a, b):
         return a / b
     else:
         return "Error: Division by zero"
+ 
+# binary_module.py
+def to_binary(n):  # EX) 10 B = 1010 
+    return bin(n)[2:] 
+
+# pow_module.py
+def power(a, b):   # EX) 4 ^ 2 = 16
+    return a ** b
+
+# mod_module.py
+def mod(a, b):     # EX) 10 % 20 = 10
+    return a % b
+
+# sqrt_module.py
+def sqrt(a):      #  EX) 9 √ = 3
+    if a >= 0:
+        return math.sqrt(a)
+    else:
+        return "Error: Negative number"
