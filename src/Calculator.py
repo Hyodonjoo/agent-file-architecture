@@ -1,9 +1,9 @@
 import tkinter as tk
 
-import add
-import subtract
-import multiply
-import divide
+import add_module
+import subtract_module
+import multiply_module
+import divide_module
 
 # import add_module # exe 변환시 add로 변경
 # import subtract_module # exe 변환시 subtract로 변경
