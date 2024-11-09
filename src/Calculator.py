@@ -66,26 +66,3 @@ for button in buttons:
 
 # GUI 루프 실행
 root.mainloop()
-
-
-# add.py
-def add_module(a, b):
-    return a + b
-
-
-# subtract.py
-def subtract_module(a, b):
-    return a - b
-
-
-# multiply.py
-def multiply_module(a, b):
-    return a * b
-
-
-# divide.py
-def divide_module(a, b):
-    if b != 0:
-        return a / b
-    else:
-        return "Error: Division by zero"
