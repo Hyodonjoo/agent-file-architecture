@@ -116,7 +116,7 @@ def restore_backup(backup_dir, original_dir):
 
 
 def updater():
-    serverURL = "http://localhost:3000/"
+    serverURL = "http://3.38.98.4:3000/"
     program_name = "Calculator.exe"
     program_dir = "dist/"
     new_version_dir = "new_version/"
