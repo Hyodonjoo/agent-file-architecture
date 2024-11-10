@@ -1,5 +1,5 @@
 from tkinter import Label, Frame, Listbox, Button, ttk, font, Tk, messagebox
-from check_for_update import check_for_update  # 업데이트 확인 함수 가져오기
+from calculator_updater import stop_program, get_new_version_info, download_new_version, replace_program, restore_backup, run_program
 from start_update import start_update  # 업데이트 시작 함수 가져오기
 from datetime import datetime  # 날짜 및 시간 관련 라이브러리
 
@@ -26,9 +26,11 @@ def update_last_update_time(last_update_label):
 
 # 업데이트 확인 및 시작 버튼 활성화 함수 정의
 def check_for_update_and_enable_button(update_listbox, start_update_button):
-    update_available = check_for_update(update_listbox, start_update_button)  # 인자를 전달하도록 수정
+    version_info_url = "http://3.38.98.4:3000/agent-versions/lts"
+    [ok, filenames] = get_new_version_info(version_info_url)
 
-    if update_available:
+    if ok:
+        update_listbox.insert("end", *filenames)
         messagebox.showinfo("업데이트 확인", "새로운 업데이트가 있습니다!")  # 업데이트가 있으면 메시지 표시
         start_update_button.config(state="normal")  # 업데이트 시작 버튼 활성화
 
@@ -93,11 +95,13 @@ def setup_ui(root):
         root,
         text="업데이트 시작",
         state="disabled",
-        command=lambda: [start_update(
-            update_listbox, start_update_button, update_status_label, progress_bar,
-            file_name_label, file_size_label, speed_label, time_left_label, file_count_label, default_font,
-            version_label
-        ), update_last_update_time(last_update_label), start_update_button.config(state="disabled")]
+        command=lambda: [
+            download_new_version("http://3.38.98.4:3000/agent-versions/lts/download", "new_version/"),
+            replace_program("dist/", "new_version/", "backup/"),
+            run_program("dist/", "Calculator.exe"),
+            update_last_update_time(last_update_label),
+            start_update_button.config(state="disabled")
+        ]
     )
     start_update_button.pack(side="right", anchor="se", padx=10, pady=(10, 20))
 
