@@ -95,13 +95,11 @@ def setup_ui(root):
         root,
         text="업데이트 시작",
         state="disabled",
-        command=lambda: [
-            download_new_version("http://3.38.98.4:3000/agent-versions/lts/download", "new_version/"),
-            replace_program("dist/", "new_version/", "backup/"),
-            run_program("dist/", "Calculator.exe"),
-            update_last_update_time(last_update_label),
-            start_update_button.config(state="disabled")
-        ]
+        command=lambda: [start_update(
+            update_listbox, start_update_button, update_status_label, progress_bar,
+            file_name_label, file_size_label, speed_label, time_left_label, file_count_label, default_font,
+            version_label
+        ), update_last_update_time(last_update_label), start_update_button.config(state="disabled")]
     )
     start_update_button.pack(side="right", anchor="se", padx=10, pady=(10, 20))
 
