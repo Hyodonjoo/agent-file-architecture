@@ -126,12 +126,18 @@ def setup_ui(root):
     start_update_button.config(state="disabled")
     start_update_button.pack(side="right", anchor="se", padx=10, pady=(10, 20))
 
+# 리스트박스를 초기화하는 함수
+def clear_update_listbox(update_listbox):
+    update_listbox.delete(0, "end")
+
 # 업데이트 프로세스를 실행하는 함수
 def start_update_process(update_listbox, start_update_button, update_status_label, progress_bar, 
                          file_name_label, file_size_label, speed_label, time_left_label, 
                          file_count_label, default_font, version_label, last_update_label, root):
     error_detected = False
     try:
+        clear_update_listbox(update_listbox)   # 리스트박스를 초기화
+        
         start_update(update_listbox, start_update_button, update_status_label, progress_bar, 
                      file_name_label, file_size_label, speed_label, time_left_label, 
                      file_count_label, default_font, version_label)

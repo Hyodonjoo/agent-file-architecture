@@ -8,9 +8,6 @@ def check_for_update(update_listbox, start_update_button):
         messagebox.showinfo("업데이트 확인", "최신 버전입니다!")
         return
     
-    # 업데이트 목록 리스트박스를 초기화 (기존 항목 삭제)
-    update_listbox.delete(0, "end")
-    
     # 중복을 제거한 모듈 이름 목록을 생성
     unique_modules = set(module["module"] for module in update_modules)
     
