@@ -18,7 +18,6 @@ program_dir = "dist/"
 
 # UI에서 메시지를 추가하는 함수 설정
 def set_message_function(func):
-    global add_message_function
     add_message_function = func  # 메시지 UI에 추가하는 함수 할당
 
 # 디렉토리의 모든 파일을 대상 디렉토리로 이동하는 함수
