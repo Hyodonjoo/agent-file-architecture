@@ -26,8 +26,11 @@ Calculator.py가 저장되어있는 폴더(src폴더)로 이동하여
 
 ## 개발 중에 실행하기
 
-2. Calculator.exe가 실행되어 있는 상태에서 `python .\src\updater.py` 명령어 실행
+2. Calculator.exe가 실행되어 있는 상태에서 `py update_ui_main.py ` 명령어 실행해서 UI 창 뜨면, `업데이트 확인` 버튼 누른 후 `업데이트 시작` 버튼 누름 
 
+2-1. 그럼 업데이터가 탐지한 에러 내용들을 UI 텍스트 리스트 박스에 표시함. 
+
+2-2 그 다음에 UI 상태 라벨은 "에러 탐지 완료" 라는 문구가 뜸.  
 ## 실행 파일 생성하기
 
 1. `pyinstaller --onefile --distpath updater src/updater.py` 명령어로 Calculator.exe와 다른 폴더에 updater.exe 실행파일 생성
