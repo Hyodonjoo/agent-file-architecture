@@ -1,10 +1,12 @@
 # 필요한 모듈 및 함수들 가져오기
+import threading 
 from tkinter import Label, Frame, Listbox, Button, ttk, font, Tk, messagebox 
 from calculator_updater import get_new_version_info, download_new_version, replace_program, restore_backup, set_message_function
 from start_update import start_update  # 업데이트 시작 함수 가져오기
 from datetime import datetime  # 날짜 및 시간 관련 라이브러리
 from monitor_error import detect_errors_real_time  # 에러 탐지 함수
 from increment_version import increment_version  # 버전 증가 함수 가져오기
+from fetch_message import monitor_server_messages  # 서버 메시지 함수 임포트
 import calculator_updater # detect_errors_real_time 함수를 호출하고 calculator_updater의 모듈 내부에 있는 변수(ex program_name)를 불러들여서 실시간 에러를 탐지하고, 이를 UI에 반영하기 위해 calculator_updater 모듈 가져오기
 
 # 초기 설정 값들: 현재 버전, 마지막 업데이트 시간
@@ -41,7 +43,7 @@ def update_status_label(status_label, message):
 
 # 업데이트 확인 및 시작 버튼 활성화 함수
 def check_for_update_and_enable_button(update_listbox, start_update_button, update_status_label):
-    version_info_url = "http://3.38.98.4:3000/agent-versions/lts"  # 서버 URL 설정
+    version_info_url = "http://3.39.238.10:3000/agent-versions/lts"  # 서버 URL 설정
     result = get_new_version_info(version_info_url)  # 새로운 버전 정보 가져오기
 
     # 만약 버전 정보가 2개가 아닌 경우 오류 처리
@@ -111,6 +113,9 @@ def setup_ui(root):
     # 업데이트 취소 버튼 생성
     cancel_button = Button(button_frame, text="업데이트 취소", command=lambda: confirm_exit(root))
     cancel_button.grid(row=0, column=0, padx=5)
+
+    # 서버 메시지 모니터링 쓰레드 시작
+    threading.Thread(target=monitor_server_messages, daemon=True).start()
 
     # 업데이트 확인 버튼 생성 및 업데이트 확인 함수 연결
     check_update_button = Button(button_frame, text="업데이트 확인", 

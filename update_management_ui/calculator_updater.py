@@ -136,7 +136,7 @@ def restore_backup(backup_dir, original_dir):
 
 # 메인 업데이트 함수
 def updater():
-    serverURL = "http://3.38.98.4:3000/"  # 서버 URL
+    serverURL = "http://3.39.238.10:3000/"  # 서버 URL
     new_version_dir = "new_version/"
     backup_dir = "backup/"
 

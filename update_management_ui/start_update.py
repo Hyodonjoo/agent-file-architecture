@@ -8,10 +8,10 @@ import os
 
 def start_update(update_listbox, start_update_button, update_status_label, progress_bar, 
                  file_name_label, file_size_label, speed_label, time_left_label, file_count_label, default_font, version_label):
-    serverURL = "http://3.38.98.4:3000/"
+    serverURL = "http://3.39.238.10:3000/"
     new_version_dir = "new_version/"
     backup_dir = "backup/"
-    program_dir = "dist/"
+    program_dir = "dist/Calculator/"
     program_name = "Calculator.exe"
 
     # 서버로부터 새로운 버전 정보 가져오기
