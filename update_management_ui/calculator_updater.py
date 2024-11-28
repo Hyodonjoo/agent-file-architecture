@@ -19,15 +19,13 @@ add_message_function = None  # 전역적으로 메시지 추가 함수 설정을
 program_name = "Calculator.exe"
 program_dir = "dist/Calculator/"
 
+
 # UI에서 메시지를 추가하는 함수 설정
-
-
 def set_message_function(func):
     add_message_function = func  # 메시지 UI에 추가하는 함수 할당
 
+
 # 디렉토리의 모든 파일을 대상 디렉토리로 이동하는 함수
-
-
 def backup_contents(src_dir, dest_dir):
     src_path = Path(src_dir)  # 소스 디렉토리 경로 설정
     dest_path = Path(dest_dir)  # 대상 디렉토리 경로 설정
@@ -39,9 +37,8 @@ def backup_contents(src_dir, dest_dir):
     for src_file in src_path.glob('*.*'):
         shutil.copy(src_file, dest_path)
 
+
 # 현재 실행되어 있는 프로그램을 종료하는 함수
-
-
 def stop_program(program_name):
     try:
         if program_name in (p.name() for p in psutil.process_iter()):
@@ -121,9 +118,8 @@ def get_new_version_info(url):
         print(f"새로운 버전의 정보를 가져오는 중 오류 발생: {e}")
         return [False]
 
+
 # 서버로부터 새로운 버전의 프로그램을 다운로드하는 함수
-
-
 def download_new_version(url, dest_dir):
     try:
         response = requests.get(url, stream=True)  # 다운로드를 위한 GET 요청
@@ -145,20 +141,17 @@ def download_new_version(url, dest_dir):
 
     return True  # 다운로드 성공적으로 완료되었으면 True 반환
 
+
 # 프로그램 파일을 백업하고 교체하는 함수
-
-
 def replace_program(original_dir, new_version_dir, backup_dir):
     try:
         backup_contents(original_dir, backup_dir)  # 기존 파일을 백업 디렉토리로 이동
-        # 새로운 버전 파일을 원본 디렉토리로 이동
 
-        src_path = Path(new_version_dir)  # 소스 디렉토리 경로 설정
         dest_path = Path(original_dir)  # 대상 디렉토리 경로 설정
         if not Path(dest_path).exists():  # 대상 디렉토리가 이미 있으면 삭제
             dest_path.mkdir(parents=True, exist_ok=True)  # 새 디렉토리 생성
 
-        # 소스 디렉토리의 모든 파일을 대상 디렉토리로 복사
+        # 소스 디렉토리의 모든 파일을 대상 디렉토리로 이동
         src_files = get_filenames(new_version_dir)
         dest_files = get_filenames(original_dir)
         for src_file in src_files:
@@ -169,17 +162,14 @@ def replace_program(original_dir, new_version_dir, backup_dir):
         if add_message_function:
             add_message_function("프로그램 파일 교체 완료.")
     except Exception as e:
-        print(e)
-        exit()
         if add_message_function:
             add_message_function(f"프로그램 파일 교체 중 오류 발생: {e}")
         return False
 
     return True  # 교체가 성공적으로 완료되었으면 True 반환
 
+
 # 프로그램 실행 함수
-
-
 def run_program(program_dir, program_name):
     try:
         subprocess.Popen([program_dir + program_name])  # 프로그램 실행
@@ -197,9 +187,8 @@ def run_program(program_dir, program_name):
 
     return True  # 프로그램이 정상적으로 실행되었으면 True 반환
 
+
 # 오류 발생 시 원래 파일로 복구하는 함수
-
-
 def restore_backup(backup_dir, original_dir):
     try:
         backup_contents(backup_dir, original_dir)  # 백업 디렉토리에서 원본 디렉토리로 복구
@@ -209,9 +198,8 @@ def restore_backup(backup_dir, original_dir):
         if add_message_function:
             add_message_function(f"백업 복구 중 오류 발생: {e}")
 
+
 # 메인 업데이트 함수
-
-
 def updater():
     serverURL = "http://3.39.238.10:3000/"  # 서버 URL
     new_version_dir = "new_version/"

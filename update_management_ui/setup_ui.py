@@ -17,9 +17,8 @@ last_update_datetime = "0000-00-00 00:00:00"
 # 새로운 텍스트 리스트박스를 전역 변수로 선언
 new_text_listbox = None
 
+
 # 메시지를 텍스트 리스트박스에 추가하는 함수
-
-
 def add_message_to_listbox(message):
     if new_text_listbox:
         # 메시지에 현재 시간을 포맷팅하여 추가
@@ -27,32 +26,28 @@ def add_message_to_listbox(message):
         new_text_listbox.insert("end", formatted_message)  # 리스트박스의 끝에 메시지 삽입
         new_text_listbox.yview_moveto(1)  # 자동 스크롤
 
+
 # 종료 확인 함수 정의
-
-
 def confirm_exit(root):
     # 업데이트 취소 확인 메시지 박스를 띄우고, 예시 '예'를 클릭하면 창을 닫음
     if messagebox.askyesno("업데이트 취소 확인", "업데이트를 취소하시겠습니까?"):
         root.destroy()  # 루트 창을 종료
 
+
 # 마지막 업데이트 시간 갱신하는 함수
-
-
 def update_last_update_time(last_update_label):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 현재 시간 구하기
     last_update_label.config(text=f"마지막 업데이트: {current_time}")  # 라벨 업데이트
 
+
 # 상태 라벨 갱신 함수
-
-
 def update_status_label(status_label, message):
     # 상태 라벨이 존재하면 주어진 메시지로 상태 라벨을 업데이트
     if status_label.winfo_exists():
         status_label.config(text=message)
 
+
 # 업데이트 확인 및 시작 버튼 활성화 함수
-
-
 def check_for_update_and_enable_button(update_listbox, start_update_button, update_status_label):
     version_info_url = "http://3.39.238.10:3000/agent-versions/lts"  # 서버 URL 설정
     result = get_new_version_info(version_info_url)  # 새로운 버전 정보 가져오기
@@ -69,9 +64,8 @@ def check_for_update_and_enable_button(update_listbox, start_update_button, upda
         start_update_button.config(state="normal")  # 업데이트 시작 버튼 활성화
         update_status_label.config(text="새로운 업데이트 발생")  # 상태 라벨 변경
 
+
 # UI 구성 함수
-
-
 def setup_ui(root):
     global current_version, last_update_datetime, new_text_listbox
     default_font = font.nametofont("TkDefaultFont")  # 기본 폰트 설정
@@ -146,15 +140,13 @@ def setup_ui(root):
     start_update_button.config(state="disabled")
     start_update_button.pack(side="right", anchor="se", padx=10, pady=(10, 20))
 
+
 # 리스트박스를 초기화하는 함수
-
-
 def clear_update_listbox(update_listbox):
     update_listbox.delete(0, "end")
 
+
 # 업데이트 프로세스를 실행하는 함수
-
-
 def start_update_process(update_listbox, start_update_button, update_status_label, progress_bar,
                          file_name_label, file_size_label, speed_label, time_left_label,
                          file_count_label, default_font, version_label, last_update_label, root):
