@@ -1,12 +1,12 @@
 from tkinter import messagebox
 from update_data import update_modules  # 업데이트할 모듈 정보 가져오기
 from increment_version import increment_version  # 버전 증가 함수 가져오기
-from calculator_updater import get_new_version_info, download_new_version, replace_program, restore_backup
+from calculator_updater import stop_program, run_program, get_new_version_info, download_new_version, replace_program, restore_backup
 from urllib import parse
 import os
 
 
-def start_update(update_listbox, start_update_button, update_status_label, progress_bar, 
+def start_update(update_listbox, start_update_button, update_status_label, progress_bar,
                  file_name_label, file_size_label, speed_label, time_left_label, file_count_label, default_font, version_label):
     serverURL = "http://3.39.238.10:3000/"
     new_version_dir = "new_version/"
@@ -43,17 +43,30 @@ def start_update(update_listbox, start_update_button, update_status_label, progr
         # UI 업데이트 (idletasks로 즉시 반영)
         file_name_label.update_idletasks()
 
+    # 업데이트 전 실행 중인 프로그램 중지
+    stop_program(program_name)
+
     # 프로그램 백업 및 교체
     if not replace_program(program_dir, new_version_dir, backup_dir):
         restore_backup(backup_dir, program_dir)
-        messagebox.showerror("업데이트 오류", "프로그램 파일 교체 중 오류가 발생했습니다. 백업 파일로 복구했습니다.")
+        messagebox.showerror(
+            "업데이트 오류", "프로그램 파일 교체 중 오류가 발생했습니다. 백업 파일로 복구했습니다.")
+        return
+
+    # 업데이트 된 프로그램 실행
+    if not run_program(program_dir, program_name):
+        restore_backup(backup_dir, program_dir)
+        messagebox.showerror(
+            "업데이트 오류", "프로그램 업데이트 중 오류가 발생했습니다. 백업 파일로 복구했습니다.")
+        run_program(program_dir, program_name)
         return
 
     # 업데이트 완료 후 메시지 박스 표시
     messagebox.showinfo("업데이트 완료", "업데이트가 완료되었습니다!")
 
     # 시작 버튼 스타일을 초기화하여 비활성화 상태로 복원
-    start_update_button.config(bg="SystemButtonFace", fg="black", font=default_font)
+    start_update_button.config(
+        bg="SystemButtonFace", fg="black", font=default_font)
 
     # 파일 개수 라벨과 진행 상태바를 초기화
     file_count_label.config(text="파일 개수: -/-")
