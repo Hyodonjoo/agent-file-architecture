@@ -49,7 +49,7 @@ def update_status_label(status_label, message):
 
 # 업데이트 확인 및 시작 버튼 활성화 함수
 def check_for_update_and_enable_button(update_listbox, start_update_button, update_status_label):
-    version_info_url = "http://3.39.238.10:3000/agent-versions/lts"  # 서버 URL 설정
+    version_info_url = "http://52.79.222.121:3000/agent-versions/lts"  # 서버 URL 설정
     result = get_new_version_info(version_info_url)  # 새로운 버전 정보 가져오기
 
     # 만약 버전 정보가 2개가 아닌 경우 오류 처리

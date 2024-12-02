@@ -4,8 +4,8 @@ import requests
 from tkinter import Tk, Label
 
 # 서버 설정
-SERVER_URL = "http://3.39.238.10:3000/message/fetch_new_messages"  # 서버 메시지 API
-ALL_MESSAGES_URL = "http://3.39.238.10:3000/message/fetch_messages"  # 서버 모든 메시지 API
+SERVER_URL = "http://52.79.222.121:3000/message/fetch_new_messages"  # 서버 메시지 API
+ALL_MESSAGES_URL = "http://52.79.222.121:3000/message/fetch_messages"  # 서버 모든 메시지 API
 FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
 
 # 메시지 수신 함수

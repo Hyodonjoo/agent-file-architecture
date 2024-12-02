@@ -8,7 +8,7 @@ import os
 
 def start_update(update_listbox, start_update_button, update_status_label, progress_bar,
                  file_name_label, file_size_label, speed_label, time_left_label, file_count_label, default_font, version_label):
-    serverURL = "http://3.39.238.10:3000/"
+    serverURL = "http://52.79.222.121:3000/"
     new_version_dir = "new_version/"
     backup_dir = "backup/"
     program_dir = "dist/Calculator/"
