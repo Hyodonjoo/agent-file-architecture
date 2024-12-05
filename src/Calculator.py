@@ -1,13 +1,17 @@
+import os
+from tkinter import messagebox
 import tkinter as tk
+import subprocess
 import threading
+
 from tkinter import Toplevel, Label, Text
 from datetime import datetime
-
 from fetch_message import monitor_server_messages, fetch_all_messages  # 서버 메시지 함수 임포트
 import add_module
 import subtract_module
 import multiply_module
 import divide_module
+
 
 WEEKDAY_MAP = {
     'Monday': '월',
@@ -18,6 +22,47 @@ WEEKDAY_MAP = {
     'Saturday': '토',
     'Sunday': '일'
 }
+
+
+# 현재 버전과 최신 버전 비교
+CURRENT_VERSION = "0"
+LATEST_VERSION = "1"
+
+def check_for_updates_async(root):
+    """
+    업데이트 확인을 비동기로 처리.
+    """
+    def update_process():
+        if CURRENT_VERSION < LATEST_VERSION:
+            response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
+            if response:
+                # 업데이트 UI를 호출하여 업데이트를 진행
+                root.after(0, lambda: call_update_ui_main(root))
+        else:
+            root.after(0, lambda: messagebox.showinfo("최신 버전", "현재 최신 버전을 사용 중입니다."))
+
+    # 업데이트 프로세스를 별도 스레드에서 실행
+    threading.Thread(target=update_process, daemon=True).start()
+
+
+def call_update_ui_main(root):
+    """
+    update_ui_main.py 실행 및 예외 처리.
+    """
+    try:
+        # 절대 경로 확인 및 subprocess 실행
+        script_path = "C:/Users/LG/OneDrive/문서/새 폴더/update_management_ui/update_ui_main.py"
+        result = subprocess.run(["python", script_path], check=True)
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
+    except FileNotFoundError:
+        messagebox.showerror("업데이트 오류", "update_ui_main.py 파일을 찾을 수 없습니다.")
+    except subprocess.CalledProcessError as e:
+        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e.returncode}")
+    except Exception as e:
+        messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
+    finally:
+        root.deiconify()  # UI 유지
 
 
 def press_key(key):
@@ -65,7 +110,6 @@ def update_messages():
     else:
         print("No messages fetched from the server.")
 
-
 def on_message_click(event):
     # 메시지 클릭 시 상세 정보를 새로운 창으로 보여주는 함수
     selection = messages.curselection()
@@ -91,7 +135,6 @@ def on_message_click(event):
             message_text.insert(tk.END, msg['message'])
             message_text.config(state='disabled')  
             message_text.pack(expand=True, fill='both')
-
 
 # 창 생성
 root = tk.Tk()
