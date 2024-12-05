@@ -15,12 +15,22 @@ def main():
     root.resizable(False, False)
     
     # UI 설정 함수 호출 (root 창을 기반으로 UI 구성)
-    setup_ui(root)
+    setup_ui(root, on_update_finished=lambda: root.after(100, close_main_window, root))
     
     # 이벤트 루프를 시작하여 창이 닫힐 때까지 프로그램이 실행됨
+    print("[INFO] 메인 창이 생성되었습니다.")
     root.mainloop()
     return 0  # 정상 종료를 명시적으로 반환
 
+def close_main_window(root):    
+    try:        
+        root.quit()  
+        root.destroy()  
+        print("[INFO] 메인 윈도우 창이 성공적으로 종료되었습니다.")
+    except Exception as e:
+        print(f"[ERROR] 창 닫기 중 오류 발생: {e}")
+
 # 메인 프로그램 실행 조건
 if __name__ == "__main__":
+    
     exit(main())  # 종료 상태를 반환하도록 설정

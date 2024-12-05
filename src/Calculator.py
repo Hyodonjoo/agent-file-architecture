@@ -12,7 +12,6 @@ import subtract_module
 import multiply_module
 import divide_module
 
-
 WEEKDAY_MAP = {
     'Monday': '월',
     'Tuesday': '화',
@@ -22,7 +21,6 @@ WEEKDAY_MAP = {
     'Saturday': '토',
     'Sunday': '일'
 }
-
 
 # 현재 버전과 최신 버전 비교
 CURRENT_VERSION = "0"
@@ -44,14 +42,13 @@ def check_for_updates_async(root):
     # 업데이트 프로세스를 별도 스레드에서 실행
     threading.Thread(target=update_process, daemon=True).start()
 
-
 def call_update_ui_main(root):
     """
     update_ui_main.py 실행 및 예외 처리.
     """
     try:
-        # 절대 경로 확인 및 subprocess 실행
-        script_path = "C:/Users/LG/OneDrive/문서/새 폴더/update_management_ui/update_ui_main.py"
+        # 상대 경로 확인 및 subprocess 실행
+        script_path = "./update_management_ui/update_ui_main.py"
         result = subprocess.run(["python", script_path], check=True)
         if result.returncode != 0:
             raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
@@ -63,7 +60,6 @@ def call_update_ui_main(root):
         messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
     finally:
         root.deiconify()  # UI 유지
-
 
 def press_key(key):
     if key == "=":
@@ -92,7 +88,6 @@ def press_key(key):
         entry.delete(0, tk.END)
     else:
         entry.insert(tk.END, key)
-
 
 def update_messages():
     # 서버에서 저장된 모든 메시지 목록을 가져와 메시지 창에 출력하는 함수 (최신 메시지부터 출력)
@@ -186,6 +181,9 @@ all_messages_cache = []
 
 # 프로그램 실행 시 초기 메시지 목록 불러오기
 update_messages()
+
+# 프로그램 실행 시 업데이트 확인
+check_for_updates_async(root)
 
 # GUI 루프 실행
 root.mainloop()
