@@ -1,13 +1,18 @@
+import os
+from tkinter import messagebox
 import tkinter as tk
+import subprocess
 import threading
-from tkinter import Toplevel, Label, Text
-from datetime import datetime
-
-from fetch_message import monitor_server_messages, fetch_all_messages  # 서버 메시지 함수 임포트
+from fetch_message import fetch_new_messages
 import add_module
 import subtract_module
+from tkinter import Toplevel, Label, Text
 import multiply_module
+from datetime import datetime
+from fetch_message import monitor_server_messages, fetch_all_messages
 import divide_module
+import datetime
+
 
 WEEKDAY_MAP = {
     'Monday': '월',
@@ -18,6 +23,47 @@ WEEKDAY_MAP = {
     'Saturday': '토',
     'Sunday': '일'
 }
+
+
+# 현재 버전과 최신 버전 비교
+CURRENT_VERSION = "0"
+LATEST_VERSION = "1"
+
+def check_for_updates_async(root):
+    """
+    업데이트 확인을 비동기로 처리.
+    """
+    def update_process():
+        if CURRENT_VERSION < LATEST_VERSION:
+            response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
+            if response:
+                # 업데이트 UI를 호출하여 업데이트를 진행
+                root.after(0, lambda: call_update_ui_main(root))
+        else:
+            root.after(0, lambda: messagebox.showinfo("최신 버전", "현재 최신 버전을 사용 중입니다."))
+
+    # 업데이트 프로세스를 별도 스레드에서 실행
+    threading.Thread(target=update_process, daemon=True).start()
+
+
+def call_update_ui_main(root):
+    """
+    update_ui_main.py 실행 및 예외 처리.
+    """
+    try:
+        # 절대 경로 확인 및 subprocess 실행
+        script_path = "C:/Users/LG/OneDrive/문서/새 폴더/update_management_ui/update_ui_main.py"
+        result = subprocess.run(["python", script_path], check=True)
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
+    except FileNotFoundError:
+        messagebox.showerror("업데이트 오류", "update_ui_main.py 파일을 찾을 수 없습니다.")
+    except subprocess.CalledProcessError as e:
+        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e.returncode}")
+    except Exception as e:
+        messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
+    finally:
+        root.deiconify()  # UI 유지
 
 
 def press_key(key):
@@ -64,8 +110,6 @@ def update_messages():
             print(f"Fetched message: [{formatted_date}] {msg['message']}")
     else:
         print("No messages fetched from the server.")
-
-
 def on_message_click(event):
     # 메시지 클릭 시 상세 정보를 새로운 창으로 보여주는 함수
     selection = messages.curselection()
@@ -80,20 +124,18 @@ def on_message_click(event):
             detail_window = Toplevel(root)
             detail_window.title("상세 메시지")
             detail_window.geometry("400x300")
-
             sender_label = Label(detail_window, text="발송자: 관리자", font=('Arial', 12), anchor='w')
             sender_label.pack(fill='x', padx=10, pady=5, anchor='nw')
-
             date_label = Label(detail_window, text=f"발송 날짜: {detailed_date}", font=('Arial', 12), anchor='w')
             date_label.pack(fill='x', padx=10, pady=5, anchor='nw')
-
             message_text = Text(detail_window, wrap='word', font=('Arial', 12), padx=10, pady=10)
             message_text.insert(tk.END, msg['message'])
             message_text.config(state='disabled')  
             message_text.pack(expand=True, fill='both')
-
-
 # 창 생성
+
+
+# Tkinter 루트 창 생성
 root = tk.Tk()
 root.title("계산기")
 
@@ -106,15 +148,12 @@ entry.grid(row=0, column=0, columnspan=4)
 
 # 버튼 레이아웃
 buttons = [
-    '7', '8', '9', '/',
-    '4', '5', '6', '*',
-    '1', '2', '3', '-',
-    '0', 'C', '=', '+'
+    '7', '8', '9', '/','4', '5', '6', '*',
+    '1', '2', '3', '-','0', 'C', '=', '+'
 ]
 
 row_val = 1
 col_val = 0
-
 for button in buttons:
     tk.Button(root, text=button, padx=20, pady=20, font=('Arial', 18), command=lambda key=button: press_key(key)).grid(row=row_val, column=col_val)
     col_val += 1
@@ -123,26 +162,28 @@ for button in buttons:
         row_val += 1
 
 # 관리자 메시지 라벨 생성
-messages_label = Label(root, text="관리자 메시지", font=('Arial', 14), pady=5)
+messages_label = tk.Label(root, text="관리자 메시지", font=('Arial', 14), pady=5)
 messages_label.grid(row=0, column=4, padx=10, pady=5)
 
-# 메시지 표시 창 생성 (우측에 배치)
+# 메시지 표시 창 생성
 messages = tk.Listbox(root, width=20, height=15, font=('Arial', 12))
 messages.grid(row=1, column=4, rowspan=5, padx=10, pady=10)
 messages.bind("<Double-1>", on_message_click)  # 메시지 클릭 시 이벤트 바인딩
-
 # 업데이트 버튼 생성 (메시지 창 아래에 배치)
 update_button = tk.Button(root, text="업데이트 실행", padx=20, pady=10, font=('Arial', 14), command=update_messages)
 update_button.grid(row=6, column=4, pady=10)
-
 # 서버 메시지 모니터링 쓰레드 시작
 threading.Thread(target=monitor_server_messages, daemon=True).start()
+
 
 # 메시지 캐시 초기화
 all_messages_cache = []
 
-# 프로그램 실행 시 초기 메시지 목록 불러오기
+# 초기 메시지 목록 불러오기
 update_messages()
+
+# 업데이트 확인을 비동기로 실행
+check_for_updates_async(root)
 
 # GUI 루프 실행
 root.mainloop()

@@ -20,23 +20,16 @@ Calculator.py가 저장되어있는 폴더(src폴더)로 이동하여
 
 ## 사전 조건
 
-1. 서버가 실행되어 있어야 합니다.
-2. Calculator.exe의 실행파일 위치는 `dist/Calculator/Calculator.exe`에 있어야 합니다.
+1. 서버가 실행되어 있어야 합니다. (기본 localhost:3000로 설정되어 있음)
+2. Calculator.exe의 실행파일 위치 `dist/`를 변경했다면 updater.exe에서 해당 경로로 수정해야 합니다.
 3. 아래 명령어 모두 프로젝트의 가장 상위 디렉토리에서 실행해야 합니다. (src 폴더 바깥)
 
 ## 개발 중에 실행하기
-1. `py update_ui_main.py ` 명령어 실행해서 UI 창 뜨면, `업데이트 확인` 버튼 누른 후 `업데이트 시작` 버튼 누름
 
-- 그럼 업데이터가 탐지한 에러 내용들을 UI 텍스트 리스트 박스에 표시함.
-- 그 다음에 UI 상태 라벨은 "에러 탐지 완료" 라는 문구가 뜸.
+2. Calculator.exe가 실행되어 있는 상태에서 `py update_ui_main.py ` 명령어 실행해서 UI 창 뜨면
+자동으로 파일 다운로드 시행
 
 ## 실행 파일 생성하기
 
 1. `pyinstaller --onefile --distpath updater src/updater.py` 명령어로 Calculator.exe와 다른 폴더에 updater.exe 실행파일 생성
-2. updater.exe를 실행
-
-
-## 자동 업데이트 실행방법
-Calculator.py에 있는 call_update_ui_main(root):에 절대 경로를 확인하는 script_path에 update_management_ui/update_ui_main.py가 있는 경로를 넣어서 경로중 \를 /로 바꾸고 Calculator.py가 저장되어있는 폴더(src폴더)로 이동하여 `pyinstaller --onefile Calculator.py `
- dist 폴더가 생성되고 Calculator.exe 실행
-
+2. Calculator.exe가 실행되어 있는 상태에서 updater.exe를 실행
