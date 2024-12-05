@@ -1,4 +1,5 @@
 import os
+import time
 from tkinter import messagebox
 import tkinter as tk
 import subprocess
@@ -26,28 +27,21 @@ WEEKDAY_MAP = {
 CURRENT_VERSION = "0"
 LATEST_VERSION = "1"
 
+FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
+
 def check_for_updates_async(root):
-    """
-    업데이트 확인을 비동기로 처리.
-    """
     def update_process():
         if CURRENT_VERSION < LATEST_VERSION:
             response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
             if response:
-                # 업데이트 UI를 호출하여 업데이트를 진행
                 root.after(0, lambda: call_update_ui_main(root))
         else:
             root.after(0, lambda: messagebox.showinfo("최신 버전", "현재 최신 버전을 사용 중입니다."))
 
-    # 업데이트 프로세스를 별도 스레드에서 실행
     threading.Thread(target=update_process, daemon=True).start()
 
 def call_update_ui_main(root):
-    """
-    update_ui_main.py 실행 및 예외 처리.
-    """
     try:
-        # 상대 경로 확인 및 subprocess 실행
         script_path = "./update_management_ui/update_ui_main.py"
         result = subprocess.run(["python", script_path], check=True)
         if result.returncode != 0:
@@ -59,7 +53,7 @@ def call_update_ui_main(root):
     except Exception as e:
         messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
     finally:
-        root.deiconify()  # UI 유지
+        root.deiconify()
 
 def press_key(key):
     if key == "=":
@@ -90,7 +84,6 @@ def press_key(key):
         entry.insert(tk.END, key)
 
 def update_messages():
-    # 서버에서 저장된 모든 메시지 목록을 가져와 메시지 창에 출력하는 함수 (최신 메시지부터 출력)
     global all_messages_cache
     all_messages_cache = fetch_all_messages()  
     messages.delete(0, tk.END)  
@@ -105,8 +98,12 @@ def update_messages():
     else:
         print("No messages fetched from the server.")
 
+def periodic_update_messages():
+    while True:
+        update_messages()
+        time.sleep(FETCH_INTERVAL)
+
 def on_message_click(event):
-    # 메시지 클릭 시 상세 정보를 새로운 창으로 보여주는 함수
     selection = messages.curselection()
     if selection:
         index = selection[0]        
@@ -130,6 +127,22 @@ def on_message_click(event):
             message_text.insert(tk.END, msg['message'])
             message_text.config(state='disabled')  
             message_text.pack(expand=True, fill='both')
+
+def toggle_message_panel():
+    global message_panel_visible
+    if message_panel_visible:
+        # 메시지 창 숨기기
+        messages_label.grid_remove()
+        messages.grid_remove()
+        update_button.grid_remove()
+        toggle_button.config(text="▶")
+    else:
+        # 메시지 창 보이기
+        messages_label.grid()
+        messages.grid()
+        update_button.grid()
+        toggle_button.config(text="◀")
+    message_panel_visible = not message_panel_visible
 
 # 창 생성
 root = tk.Tk()
@@ -160,18 +173,23 @@ for button in buttons:
         col_val = 0
         row_val += 1
 
+# 메시지 창 토글 버튼 추가 (계산기와 메시지 목록 창 사이에 위치)
+message_panel_visible = True  # 메시지 창이 보이는지 여부를 추적하는 플래그
+toggle_button = tk.Button(root, text="◀", font=('Arial', 14), command=toggle_message_panel, height=15)  # 버튼 높이 조정
+toggle_button.grid(row=1, column=4, rowspan=5, padx=5, sticky='ns')  # 계산기와 메시지 목록 창 사이에 위치
+
 # 관리자 메시지 라벨 생성
 messages_label = Label(root, text="관리자 메시지", font=('Arial', 14), pady=5)
-messages_label.grid(row=0, column=4, padx=10, pady=5)
+messages_label.grid(row=0, column=5, padx=10, pady=5)
 
 # 메시지 표시 창 생성 (우측에 배치)
 messages = tk.Listbox(root, width=20, height=15, font=('Arial', 12))
-messages.grid(row=1, column=4, rowspan=5, padx=10, pady=10)
-messages.bind("<Double-1>", on_message_click)  # 메시지 클릭 시 이벤트 바인딩
+messages.grid(row=1, column=5, rowspan=5, padx=10, pady=10)
+messages.bind("<Double-1>", on_message_click)
 
 # 업데이트 버튼 생성 (메시지 창 아래에 배치)
 update_button = tk.Button(root, text="업데이트 실행", padx=20, pady=10, font=('Arial', 14), command=update_messages)
-update_button.grid(row=6, column=4, pady=10)
+update_button.grid(row=6, column=5, pady=10)
 
 # 서버 메시지 모니터링 쓰레드 시작
 threading.Thread(target=monitor_server_messages, daemon=True).start()
@@ -181,6 +199,9 @@ all_messages_cache = []
 
 # 프로그램 실행 시 초기 메시지 목록 불러오기
 update_messages()
+
+# 프로그램 실행 시 주기적인 메시지 업데이트 쓰레드 시작
+threading.Thread(target=periodic_update_messages, daemon=True).start()
 
 # 프로그램 실행 시 업데이트 확인
 check_for_updates_async(root)
