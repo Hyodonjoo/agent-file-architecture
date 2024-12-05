@@ -2,18 +2,20 @@ import threading
 import time
 import requests
 from tkinter import Tk, Label
+import uuid
 
 # 서버 설정
-SERVER_URL = "http://3.39.238.10:3000/message/fetch_new_messages"  # 서버 메시지 API
+SERVER_URL = "http://52.79.222.121:3000/message/fetch_new_messages"  # 서버 메시지 API
+ALL_MESSAGES_URL = "http://52.79.222.121:3000/message/fetch_messages"  # 서버 모든 메시지 API
 FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
 
+# 에이전트 ID 생성 (고유 ID)
+AGENT_ID = "agent_12345"  # 임의의 고유 ID를 부여 (고정된 ID)  # 임의의 고유 ID를 부여
+
 # 메시지 수신 함수
-def fetch_new_messages():
-    """
-    서버에서 새로운 메시지를 가져오는 함수.
-    """
+def fetch_new_messages():    
     try:
-        response = requests.get(SERVER_URL)
+        response = requests.get(f"{SERVER_URL}/{AGENT_ID}")
         response.raise_for_status()  # HTTP 에러가 발생하면 예외를 던짐
         messages = response.json()  # 서버에서 반환된 JSON 데이터를 파싱
         print(f"메세지 수신확인중")
@@ -21,12 +23,21 @@ def fetch_new_messages():
     except requests.RequestException as e:
         print(f"Error fetching messages: {e}")
         return []
+    
+# 서버에 저장된 모든 메시지 목록을 가져오는 함수
+def fetch_all_messages():       
+    try:
+        response = requests.get(ALL_MESSAGES_URL)
+        response.raise_for_status()  # HTTP 에러가 발생하면 예외를 던짐
+        messages = response.json()  # 서버에서 반환된 JSON 데이터를 파싱
+        print(f"모든 메세지 수신확인중")
+        return messages
+    except requests.RequestException as e:
+        print(f"Error fetching all messages: {e}")
+        return []
 
 # 새로운 메시지를 알리기 위한 창 생성
-def show_message_popup(message_content):
-    """
-    주어진 메시지를 표시하는 새로운 창을 띄웁니다.
-    """
+def show_message_popup(message_content):   
     popup = Tk()
     popup.title("New Message Alert")
     popup.geometry("300x150")
@@ -40,10 +51,7 @@ def show_message_popup(message_content):
     popup.mainloop()
 
 # 서버 메시지 업데이트 처리
-def monitor_server_messages():
-    """
-    주기적으로 서버에서 메시지를 가져와 새로운 메시지가 있으면 알림 창을 띄웁니다.
-    """
+def monitor_server_messages():   
     seen_message_ids = set()  # 이미 표시한 메시지 ID를 추적
 
     while True:
@@ -60,3 +68,9 @@ def monitor_server_messages():
             seen_message_ids.add(msg['id'])  # 이미 표시한 메시지로 기록
 
         time.sleep(FETCH_INTERVAL)  # 주기적으로 확인
+
+# 메시지 모니터링 시작
+if __name__ == "__main__":
+    threading.Thread(target=monitor_server_messages, daemon=True).start()
+    while True:
+        time.sleep(1)  # 메인 스레드를 유지하기 위해 대기
