@@ -3,7 +3,6 @@ from calculator_updater import run_program, replace_program, restore_backup, get
 from urllib import parse
 from datetime import datetime
 
-
 def calculate_file_size(file_path):
     try:
         size = os.path.getsize(file_path)
@@ -11,13 +10,11 @@ def calculate_file_size(file_path):
     except FileNotFoundError:
         return "파일 없음"
 
-
 def add_message_to_listbox(new_text_listbox, message):
     if new_text_listbox:
         formatted_message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}"
         new_text_listbox.insert("end", formatted_message)
         new_text_listbox.yview_moveto(1)
-
 
 def start_update(update_listbox, new_text_listbox, update_status_label, progress_bar,
                  file_name_label, file_count_label, version_label, last_update_label,
@@ -73,15 +70,16 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
     # 파일 다운로드 및 파일 크기 계산
     total_files = len(filenames)
     print("[DEBUG] 파일 다운로드 시작")
+    temp_dir = os.path.join(os.getcwd(), "temp")
+    os.makedirs(temp_dir, exist_ok=True)
+
     for i, file in enumerate(filenames):
         print(f"[DEBUG] 파일 다운로드 중: {file}")
         file_name_label.config(text=f"현재 파일: {file}")
         file_count_label.config(text=f"파일 개수: {i + 1}/{total_files}")
 
         # 다운로드 URL 생성
-
         download_url = f"{serverURL}agent-versions/lts/download?{parse.urlencode({'filenames': file})}"
-        temp_dir = os.path.join(os.getcwd(), "temp")
 
         if not download_new_version(download_url, temp_dir):
             print(f"[ERROR] 파일 다운로드 실패: {file}")
@@ -89,35 +87,35 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
             add_message_to_listbox(new_text_listbox, f"{file} 다운로드 실패")
             return
 
-        backup_dir = os.path.join(os.getcwd(), "backup")
-        if not replace_program(new_version_dir, temp_dir, backup_dir):
-            restore_backup(backup_dir, new_version_dir)
-            run_program(new_version_dir, program_name)
-            return
-
-        if not run_program(new_version_dir, program_name):
-            restore_backup(backup_dir, new_version_dir)
-            run_program(new_version_dir, program_name)
-            return
-
         # 파일 크기 계산
-        file_path = os.path.join(new_version_dir, file)
+        file_path = os.path.join(temp_dir, file)
         file_size = calculate_file_size(file_path)
         file_size_label.config(text=f"파일 크기: {file_size}")
-        add_message_to_listbox(
-            new_text_listbox, f"{file} 다운로드 완료 ({file_size})")
+        add_message_to_listbox(new_text_listbox, f"{file} 다운로드 완료 ({file_size})")
 
         # 진행 상태바 갱신
         progress_bar['value'] = ((i + 1) / total_files) * 100
         progress_bar.update_idletasks()
         print(f"[DEBUG] 파일 다운로드 완료: {file} ({file_size})")
 
+    # 다운로드 완료 후 프로그램 교체 및 실행
+    print("[DEBUG] 모든 파일 다운로드 완료. 프로그램 교체 및 실행 시작")
+    backup_dir = os.path.join(os.getcwd(), "backup")
+    if not replace_program(new_version_dir, temp_dir, backup_dir):
+        restore_backup(backup_dir, new_version_dir)
+        run_program(new_version_dir, program_name)
+        return
+
+    if not run_program(new_version_dir, program_name):
+        restore_backup(backup_dir, new_version_dir)
+        run_program(new_version_dir, program_name)
+        return
+
     # 업데이트 완료
-    print("[DEBUG] 모든 파일 다운로드 완료. 업데이트 완료 처리 중")
+    print("[DEBUG] 모든 파일 다운로드 및 교체 완료. 업데이트 완료 처리 중")
     update_status_label.config(text="업데이트 완료")
     update_ui_labels(version_label, last_update_label)
-    last_update_label.config(
-        text=f"마지막 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    last_update_label.config(text=f"마지막 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     clear_listboxes(update_listbox)
 
     # on_update_complete_message() 호출 여부 확인을 위해 콘솔 로그 추가
@@ -125,5 +123,5 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
     on_update_complete_message()
     print("[DEBUG] on_update_complete_message() 호출 완료")
 
-    add_message_to_listbox(new_text_listbox, "모든 파일 다운로드 완료")
+    add_message_to_listbox(new_text_listbox, "모든 파일 다운로드 및 업데이트 완료")
     print("[DEBUG] 모든 업데이트 작업 완료 메시지 추가 완료")

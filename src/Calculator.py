@@ -93,8 +93,7 @@ def update_messages():
             formatted_date = original_date.strftime("%m-%d %H:%M:%S")           
             messages.insert(tk.END, f"[{formatted_date}]")
             messages.insert(tk.END, f"{msg['message']}")
-            messages.insert(tk.END, "")  
-            print(f"Fetched message: [{formatted_date}] {msg['message']}")
+            messages.insert(tk.END, "")             
     else:
         print("No messages fetched from the server.")
 
