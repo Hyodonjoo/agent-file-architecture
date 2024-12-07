@@ -42,7 +42,7 @@ def check_for_updates_async(root):
 
 def call_update_ui_main(root):
     try:
-        script_path = "./update_management_ui/update_ui_main.py"
+        script_path = "../../update_management_ui/update_ui_main.py"
         result = subprocess.run(["python", script_path], check=True)
         if result.returncode != 0:
             raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
