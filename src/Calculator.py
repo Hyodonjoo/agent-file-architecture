@@ -12,6 +12,7 @@ import add_module
 import subtract_module
 import multiply_module
 import divide_module
+from calculator_updater import get_new_version_info
 
 WEEKDAY_MAP = {
     'Monday': '월',
@@ -24,8 +25,27 @@ WEEKDAY_MAP = {
 }
 
 # 현재 버전과 최신 버전 비교
-CURRENT_VERSION = "0"
-LATEST_VERSION = "1"
+last_update_file_path = "last_update.txt"
+
+# 현재 버전 불러오기
+if os.path.exists(last_update_file_path):
+    with open(last_update_file_path, "r") as file:
+        lines = file.readlines()
+        CURRENT_VERSION = lines[0].strip() if lines else "0"
+else:
+    CURRENT_VERSION = "0"
+
+# 최신 버전 정보 가져오기
+LATEST_VERSION = "unknown"
+try:
+    server_url = "http://52.79.222.121:3000/agent-versions/lts"
+    ok, _, server_version = get_new_version_info(server_url)
+    if ok:
+        LATEST_VERSION = server_version
+    else:
+        print("[ERROR] 서버에서 최신 버전 정보를 가져오지 못했습니다.")
+except Exception as e:
+    print(f"[ERROR] 최신 버전 정보를 가져오는 중 오류 발생: {e}")
 
 FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
 
@@ -34,26 +54,19 @@ def check_for_updates_async(root):
         if CURRENT_VERSION < LATEST_VERSION:
             response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
             if response:
-                root.after(0, lambda: call_update_ui_main(root))
-        else:
-            root.after(0, lambda: messagebox.showinfo("최신 버전", "현재 최신 버전을 사용 중입니다."))
+                root.after(0, lambda: call_update_ui_main(root))        
 
     threading.Thread(target=update_process, daemon=True).start()
 
 def call_update_ui_main(root):
     try:
-        script_path = "../../update_management_ui/update_ui_main.py"
-        result = subprocess.run(["python", script_path], check=True)
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
-    except FileNotFoundError:
-        messagebox.showerror("업데이트 오류", "update_ui_main.py 파일을 찾을 수 없습니다.")
-    except subprocess.CalledProcessError as e:
-        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e.returncode}")
+        import update_ui_main  # 모듈로 import
+        update_ui_main.main()  # main 함수 호출
+        messagebox.showinfo("업데이트 완료", "업데이트가 성공적으로 완료되었습니다.")
+    except ModuleNotFoundError:
+        messagebox.showerror("업데이트 오류", "update_ui_main 모듈을 찾을 수 없습니다.")
     except Exception as e:
-        messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
-    finally:
-        root.deiconify()
+        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e}")
 
 def press_key(key):
     if key == "=":

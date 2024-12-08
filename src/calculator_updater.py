@@ -33,14 +33,17 @@ def backup_contents(src_dir, dest_dir):
 # 현재 실행되어 있는 프로그램을 종료하는 함수
 
 
-def stop_program(program_name):
-    try:
-        if program_name in (p.name() for p in psutil.process_iter()):
-            # 프로세스 종료 명령 실행
+def stop_program(pid):
+    try:        
+        if psutil.pid_exists(pid):            
             subprocess.run(
-                f'taskkill /F /IM {program_name}', check=True, shell=True)
+                f'taskkill /F /PID {pid}', check=True, shell=True
+            )
+        else:
+            print(f"PID {pid} does not exist or is not running.")
+            return False
     except Exception as e:
-        print(f"프로그램 종료 중 오류 발생: {e}")
+        print(f"프로그램 종료 중 오류 발생{pid}: {e}")
         return False
     return True  # 정상적으로 종료되었으면 True 반환
 
@@ -83,9 +86,10 @@ def get_new_version_info(url):
         session.mount("http://", adapter)
 
         response = session.get(url, timeout=5)
-        response.raise_for_status()
+        response.raise_for_status()       
 
-        response_data = response.json()
+        response_data = response.json()        
+
         if response_data["ok"]:
             result = response_data["result"]
             installed_files = get_installed_files(program_dir)
@@ -95,12 +99,15 @@ def get_new_version_info(url):
                 if fileInfo["filename"] not in installed_files or
                 installed_files[fileInfo["filename"]] != fileInfo["hash"]
             ]
-            return [True, filenames]
+            # 추가된 서버 버전 정보 반환
+            server_version = result.get("version", "unknown")
+            print(f"Parsed version data: {server_version}")
+            return True, filenames, server_version
         else:
-            return [False]
+            return False, [], "unknown"
     except requests.exceptions.RequestException as e:
         print(f"새로운 버전의 정보를 가져오는 중 오류 발생: {e}")
-        return [False]
+        return False, [], "unknown"
 
 # 서버로부터 새로운 버전의 프로그램을 다운로드하는 함수
 
@@ -169,35 +176,4 @@ def restore_backup(backup_dir, original_dir):
 # 메인 업데이트 함수
 
 
-def updater():
-    serverURL = "http://52.79.222.121:3000/"
-    new_version_dir = "new_version/"
-    backup_dir = "backup/"
 
-    if not stop_program(program_name):
-        return
-
-    version_info_url = serverURL + "agent-versions/lts"
-    [ok, filenames] = get_new_version_info(version_info_url)
-    if not ok:
-        return
-
-    url_query = parse.urlencode({"filenames": ",".join(filenames)})
-    download_url = serverURL + "agent-versions/lts/download?" + url_query
-    if not download_new_version(download_url, new_version_dir):
-        run_program(program_dir, program_name)
-        return
-
-    if not replace_program(program_dir, new_version_dir, backup_dir):
-        restore_backup(backup_dir, program_dir)
-        run_program(program_dir, program_name)
-        return
-
-    if not run_program(program_dir, program_name):
-        restore_backup(backup_dir, program_dir)
-        run_program(program_dir, program_name)
-        return
-
-
-if __name__ == "__main__":
-    updater()
