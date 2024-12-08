@@ -1,7 +1,8 @@
 import threading
 import os
+import psutil
 from tkinter import Label, Frame, Listbox, ttk, Tk, messagebox
-from calculator_updater import get_new_version_info
+from calculator_updater import get_new_version_info, stop_program
 from datetime import datetime
 
 # 파일 경로 설정
@@ -106,14 +107,16 @@ def setup_ui(root, on_update_finished):
                 ok, filenames, server_version = get_new_version_info(server_url)
 
                 if not ok:
-                    raise Exception("최신 버전 정보를 가져오는 데 실패했습니다.")                
+                    raise Exception("최신 버전 정보를 가져오는 데 실패했습니다.")
+                
+                program_pid = next((p.pid for p in psutil.process_iter(['name']) if p.info['name'] == "Calculator.exe"), None)                        
 
                 # 업데이트 작업 수행
                 import start_update
                 start_update.start_update(
                     update_listbox, new_text_listbox, update_status_label, progress_bar,
                     file_name_label, file_count_label, version_label, last_update_label,
-                    update_ui_labels, clear_listboxes, on_update_complete_message, file_size_label
+                    update_ui_labels, clear_listboxes, on_update_complete_message, file_size_label, program_pid
                 )
 
                 # 업데이트 정보 저장
@@ -121,7 +124,7 @@ def setup_ui(root, on_update_finished):
                 save_last_update_info(server_version, update_time)
                 print(f"[INFO] 서버 버전: {server_version}, 업데이트 시간: {update_time}")
                 
-                print("[INFO] 업데이트 작업이 성공적으로 완료되었습니다.")
+                print("[INFO] 업데이트 작업이 성공적으로 완료되었습니다.")                
 
             except Exception as e:
                 root.after(0, lambda: messagebox.showerror(

@@ -15,8 +15,7 @@ AGENT_ID = "agent_12345"  # 임의의 고유 ID를 부여 (고정된 ID)
 
 # 메시지 수신 함수
 def fetch_new_messages():
-    try:
-        print("Fetching new messages...")  # 로그 추가
+    try:        
         response = requests.get(f"{SERVER_URL}/{AGENT_ID}")
         response.raise_for_status()  # HTTP 에러가 발생하면 예외를 던짐
         messages = response.json()  # 서버에서 반환된 JSON 데이터를 파싱        
@@ -27,8 +26,7 @@ def fetch_new_messages():
 
 # 서버에 저장된 모든 메시지 목록을 가져오는 함수
 def fetch_all_messages():
-    try:
-        print("Fetching all messages...")  # 로그 추가
+    try:        
         response = requests.get(ALL_MESSAGES_URL)
         response.raise_for_status()  # HTTP 에러가 발생하면 예외를 던짐
         messages = response.json()  # 서버에서 반환된 JSON 데이터를 파싱        
