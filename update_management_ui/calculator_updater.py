@@ -85,7 +85,14 @@ def get_new_version_info(url):
         response = session.get(url, timeout=5)
         response.raise_for_status()
 
+        # 콘솔창에 수신한 원본 데이터 출력
+        print(f"Received raw response: {response.text}")
+
         response_data = response.json()
+
+        # 콘솔창에 JSON으로 파싱된 데이터 출력
+        print(f"Parsed JSON data: {response_data}")
+
         if response_data["ok"]:
             result = response_data["result"]
             installed_files = get_installed_files(program_dir)
@@ -95,12 +102,15 @@ def get_new_version_info(url):
                 if fileInfo["filename"] not in installed_files or
                 installed_files[fileInfo["filename"]] != fileInfo["hash"]
             ]
-            return [True, filenames]
+            # 추가된 서버 버전 정보 반환
+            server_version = result.get("version", "unknown")
+            print(f"Parsed version data: {server_version}")
+            return True, filenames, server_version
         else:
-            return [False]
+            return False, [], "unknown"
     except requests.exceptions.RequestException as e:
         print(f"새로운 버전의 정보를 가져오는 중 오류 발생: {e}")
-        return [False]
+        return False, [], "unknown"
 
 # 서버로부터 새로운 버전의 프로그램을 다운로드하는 함수
 

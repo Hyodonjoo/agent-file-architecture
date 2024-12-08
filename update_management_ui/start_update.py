@@ -15,7 +15,7 @@ def add_message_to_listbox(new_text_listbox, message):
         formatted_message = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {message}"
         new_text_listbox.insert("end", formatted_message)
         new_text_listbox.yview_moveto(1)
-
+        
 def start_update(update_listbox, new_text_listbox, update_status_label, progress_bar,
                  file_name_label, file_count_label, version_label, last_update_label,
                  update_ui_labels, clear_listboxes, on_update_complete_message, file_size_label):
@@ -32,14 +32,25 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
     version_info_url = f"{serverURL}agent-versions/lts"
     try:
         print("[DEBUG] 최신 버전 정보 가져오기 시도")
-        ok, filenames = get_new_version_info(version_info_url)
+        ok, filenames, server_version = get_new_version_info(version_info_url)
         if not ok:
             raise Exception("서버에서 파일 목록을 가져오는 데 실패했습니다.")
-        if len(filenames) == 0:
-            # 버전이 동일하여 업데이트할 파일이 없는 경우 처리
+
+        # 현재 버전 확인
+        last_update_file_path = "last_update.txt"
+        current_version = "unknown"
+        if os.path.exists(last_update_file_path):
+            with open(last_update_file_path, "r") as file:
+                lines = file.readlines()
+                if len(lines) >= 1:
+                    current_version = lines[0].strip()
+        print(f"[DEBUG] 현재 버전: {current_version}, 서버 버전: {server_version}")
+
+        # 서버 버전과 현재 버전을 비교
+        if current_version == server_version:
             update_status_label.config(text="업데이트 필요 없음: 최신 버전입니다.")
             add_message_to_listbox(new_text_listbox, "현재 최신 버전을 사용 중입니다.")
-            print("[DEBUG] 최신 버전으로 업데이트가 필요 없습니다. on_update_complete_message() 호출")
+            print("[DEBUG] 서버 버전과 로컬 버전이 동일합니다. on_update_complete_message() 호출")
             on_update_complete_message()  # 업데이트 완료 후 처리 호출
             return
 
@@ -48,6 +59,7 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
         update_status_label.config(text="업데이트 실패: 버전 정보 가져오기 실패.")
         add_message_to_listbox(new_text_listbox, f"오류 발생: {e}")
         return
+
     print(f"[DEBUG] 최신 버전 정보 가져오기 성공. 파일 목록: {filenames}")
 
     # 리스트박스에 파일 목록 추가
@@ -116,6 +128,12 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
     update_status_label.config(text="업데이트 완료")
     update_ui_labels(version_label, last_update_label)
     last_update_label.config(text=f"마지막 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # 최신 버전을 파일에 저장
+    with open(last_update_file_path, "w") as file:
+        file.write(f"{server_version}\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"[DEBUG] 최신 버전 저장: {server_version}")
+
     clear_listboxes(update_listbox)
 
     # on_update_complete_message() 호출 여부 확인을 위해 콘솔 로그 추가
