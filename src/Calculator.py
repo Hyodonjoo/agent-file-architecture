@@ -42,18 +42,14 @@ def check_for_updates_async(root):
 
 def call_update_ui_main(root):
     try:
-        script_path = "./update_management_ui/update_ui_main.py"
-        result = subprocess.run(["python", script_path], check=True)
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd=result.args)
-    except FileNotFoundError:
-        messagebox.showerror("업데이트 오류", "update_ui_main.py 파일을 찾을 수 없습니다.")
-    except subprocess.CalledProcessError as e:
-        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e.returncode}")
+        import update_ui_main  # 모듈로 import
+        update_ui_main.main()  # main 함수 호출
+        messagebox.showinfo("업데이트 완료", "업데이트가 성공적으로 완료되었습니다.")
+    except ModuleNotFoundError:
+        messagebox.showerror("업데이트 오류", "update_ui_main 모듈을 찾을 수 없습니다.")
     except Exception as e:
-        messagebox.showerror("업데이트 오류", f"예기치 않은 오류가 발생했습니다: {e}")
-    finally:
-        root.deiconify()
+        messagebox.showerror("업데이트 오류", f"업데이트 실행 중 오류가 발생했습니다: {e}")
+
 
 def press_key(key):
     if key == "=":
