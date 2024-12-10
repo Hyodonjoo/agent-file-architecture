@@ -25,7 +25,7 @@ WEEKDAY_MAP = {
 }
 
 # 현재 버전과 최신 버전 비교
-last_update_file_path = "last_update.txt"
+last_update_file_path = "../../last_update.txt"
 
 # 현재 버전 불러오기
 if os.path.exists(last_update_file_path):

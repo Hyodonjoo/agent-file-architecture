@@ -6,7 +6,7 @@ from calculator_updater import get_new_version_info, stop_program
 from datetime import datetime
 
 # 파일 경로 설정
-last_update_file_path = "last_update.txt"
+last_update_file_path = "../../last_update.txt"
 
 # 파일에 마지막 업데이트 정보를 저장하는 함수
 def save_last_update_info(version, update_time):

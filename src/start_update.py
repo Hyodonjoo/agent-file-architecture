@@ -38,7 +38,7 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
             raise Exception("서버에서 파일 목록을 가져오는 데 실패했습니다.")
 
         # 현재 버전 확인
-        last_update_file_path = "last_update.txt"
+        last_update_file_path = "../../last_update.txt"
         current_version = "unknown"
         if os.path.exists(last_update_file_path):
             with open(last_update_file_path, "r") as file:
