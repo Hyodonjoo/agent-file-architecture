@@ -48,15 +48,38 @@ except Exception as e:
     print(f"[ERROR] 최신 버전 정보를 가져오는 중 오류 발생: {e}")
 
 FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
+is_manual_check = False
 
 def check_for_updates_async(root):
+    global is_manual_check  # 전역 변수를 사용한다고 명시
+    # 현재 버전 불러오기
+    if os.path.exists(last_update_file_path):
+        with open(last_update_file_path, "r") as file:
+            lines = file.readlines()
+            CURRENT_VERSION = lines[0].strip() if lines else "0"
+    else:
+        CURRENT_VERSION = "0"
+
     def update_process():
-        if CURRENT_VERSION < LATEST_VERSION:
-            response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
-            if response:
-                root.after(0, lambda: call_update_ui_main(root))        
+        global is_manual_check  # 전역 변수를 사용한다고 명시
+        if CURRENT_VERSION == LATEST_VERSION:
+            if is_manual_check:
+                messagebox.showinfo("업데이트 확인", "현재 최신 버전입니다.")
+            is_manual_check = False  # 확인 후 플래그 초기화
+            return
+
+        # 새 버전이 있을 때만 업데이트 확인 메시지 표시
+        response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
+        if response:
+            root.after(0, lambda: call_update_ui_main(root))
+        is_manual_check = False  # 확인 후 플래그 초기화
 
     threading.Thread(target=update_process, daemon=True).start()
+
+def manual_check_for_updates(root):
+    global is_manual_check
+    is_manual_check = True  # 버튼 클릭으로 수동 확인을 수행하도록 플래그 설정
+    check_for_updates_async(root)
 
 def call_update_ui_main(root):
     try:
@@ -200,7 +223,7 @@ messages.grid(row=1, column=5, rowspan=5, padx=10, pady=10)
 messages.bind("<Double-1>", on_message_click)
 
 # 업데이트 버튼 생성 (메시지 창 아래에 배치)
-update_button = tk.Button(root, text="업데이트 실행", padx=20, pady=10, font=('Arial', 14), command=update_messages)
+update_button = tk.Button(root, text="업데이트 실행", padx=20, pady=10, font=('Arial', 14), command=lambda: manual_check_for_updates(root))
 update_button.grid(row=6, column=5, pady=10)
 
 # 서버 메시지 모니터링 쓰레드 시작
