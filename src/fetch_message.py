@@ -6,8 +6,8 @@ import tkinter as tk
 from datetime import datetime
 
 # 서버 설정
-SERVER_URL = "http://52.79.222.121:3000/message/fetch_new_messages"  # 서버 메시지 API
-ALL_MESSAGES_URL = "http://52.79.222.121:3000/message/fetch_messages"  # 서버 모든 메시지 API
+SERVER_URL = "http://43.203.195.185:3000/message/fetch_new_messages"  # 서버 메시지 API
+ALL_MESSAGES_URL = "http://43.203.195.185:3000/message/fetch_messages"  # 서버 모든 메시지 API
 FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
 
 # 에이전트 ID 생성 (고유 ID)

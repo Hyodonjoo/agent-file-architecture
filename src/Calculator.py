@@ -24,17 +24,10 @@ WEEKDAY_MAP = {
 
 last_update_file_path = "../../last_update.txt"
 
-if os.path.exists(last_update_file_path):
-    with open(last_update_file_path, "r") as file:
-        lines = file.readlines()
-        CURRENT_VERSION = lines[0].strip() if lines else "0"
-else:
-    CURRENT_VERSION = "0"
-
 LATEST_VERSION = "unknown"
 CHANGED_FILES = []
 try:
-    server_url = "http://52.79.222.121:3000/agent-versions/lts"
+    server_url = "http://43.203.195.185:3000/agent-versions/lts"
     ok, changed_files, server_version = get_new_version_info(server_url)
     if ok:
         LATEST_VERSION = server_version        
@@ -237,7 +230,13 @@ root.resizable(width=False, height=False)
 
 # 필수 파일 체크 로직
 required_files = ["add_module.py", "subtract_module.py", "multiply_module.py", "divide_module.py"]
-missing_files = [f for f in required_files if not os.path.exists(os.path.join(os.getcwd(), f))]
+missing_files = [
+    f for f in required_files
+    if not (
+        os.path.exists(os.path.join(os.getcwd(), 'dist', 'Calculator', f)) 
+        or os.path.exists(os.path.join(os.getcwd(), f))
+    )
+]
 
 if missing_files:
     messagebox.showwarning("필수 파일 누락", "필수 파일이 없어서 복구를 진행합니다.")
