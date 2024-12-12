@@ -37,11 +37,13 @@ else:
 
 # 최신 버전 정보 가져오기
 LATEST_VERSION = "unknown"
+CHANGED_FILES = []  # 변경된 파일 목록 저장용
 try:
     server_url = "http://52.79.222.121:3000/agent-versions/lts"
-    ok, _, server_version = get_new_version_info(server_url)
+    ok, changed_files, server_version = get_new_version_info(server_url)
     if ok:
         LATEST_VERSION = server_version
+        CHANGED_FILES = changed_files
     else:
         print("[ERROR] 서버에서 최신 버전 정보를 가져오지 못했습니다.")
 except Exception as e:
@@ -182,6 +184,10 @@ def toggle_message_panel():
 # 창 생성
 root = tk.Tk()
 root.title("계산기")
+
+# 만약 변경된 파일이 있을 경우 즉시 업데이트 진행
+if CHANGED_FILES:
+    call_update_ui_main(root)
 
 # 창 크기 고정
 root.resizable(width=False, height=False)
