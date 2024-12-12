@@ -22,7 +22,7 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
 
     serverURL = "http://52.79.222.121:3000/"    
 
-    new_version_dir = os.path.join((os.getcwd()), "dist", "Calculator/")
+    new_version_dir = os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), "dist", "Calculator/")
     print("[DEBUG] new_version_dir: ", new_version_dir)
     program_name = "Calculator.exe"
 

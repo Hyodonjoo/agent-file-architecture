@@ -37,8 +37,7 @@ try:
     server_url = "http://52.79.222.121:3000/agent-versions/lts"
     ok, changed_files, server_version = get_new_version_info(server_url)
     if ok:
-        LATEST_VERSION = server_version
-        CHANGED_FILES = changed_files
+        LATEST_VERSION = server_version        
     else:
         print("[ERROR] 서버에서 최신 버전 정보를 가져오지 못했습니다.")
 except Exception as e:
@@ -55,7 +54,7 @@ def check_for_updates_async(root):
             CURRENT_VERSION = lines[0].strip() if lines else "0"
     else:
         CURRENT_VERSION = "0"
-
+        
     def update_process():
         global is_manual_check
         if CURRENT_VERSION == LATEST_VERSION:
@@ -234,10 +233,16 @@ root.title("계산기")
 
 root.config(bg="#ADD8E6")
 
-if CHANGED_FILES:
-    call_update_ui_main(root)
-
 root.resizable(width=False, height=False)
+
+# 필수 파일 체크 로직
+required_files = ["add_module.py", "subtract_module.py", "multiply_module.py", "divide_module.py"]
+missing_files = [f for f in required_files if not os.path.exists(os.path.join(os.getcwd(), f))]
+
+if missing_files:
+    messagebox.showwarning("필수 파일 누락", "필수 파일이 없어서 복구를 진행합니다.")
+    call_update_ui_main(root)
+    
 
 entry = tk.Entry(root, width=20, font=('Arial', 18), bd=1, insertwidth=4, justify='right', bg="#E0FFFF", fg="black", relief="sunken")
 entry.grid(row=0, column=0, columnspan=4, pady=5, padx=5)
