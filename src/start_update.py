@@ -20,7 +20,7 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
                  file_name_label, file_count_label, version_label, last_update_label,
                  update_ui_labels, clear_listboxes, on_update_complete_message, file_size_label, program_pid):
 
-    serverURL = "http://52.79.222.121:3000/"    
+    serverURL = "http://43.203.195.185:3000/"    
 
     new_version_dir = os.path.join((os.getcwd()), "dist", "Calculator/")
     print("[DEBUG] new_version_dir: ", new_version_dir)

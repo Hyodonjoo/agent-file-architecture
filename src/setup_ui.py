@@ -103,7 +103,7 @@ def setup_ui(root, on_update_finished):
                 print("[INFO] 업데이트 작업이 시작됩니다.")
 
                 # 최신 버전 정보 가져오기
-                server_url = "http://52.79.222.121:3000/agent-versions/lts"
+                server_url = "http://43.203.195.185:3000/agent-versions/lts"
                 ok, filenames, server_version = get_new_version_info(server_url)
 
                 if not ok:

@@ -25,7 +25,7 @@ WEEKDAY_MAP = {
 }
 
 # 현재 버전과 최신 버전 비교
-last_update_file_path = "../../last_update.txt"
+last_update_file_path = "last_update.txt"
 
 # 현재 버전 불러오기
 if os.path.exists(last_update_file_path):
@@ -39,7 +39,7 @@ else:
 LATEST_VERSION = "unknown"
 CHANGED_FILES = []  # 변경된 파일 목록 저장용
 try:
-    server_url = "http://52.79.222.121:3000/agent-versions/lts"
+    server_url = "http://43.203.195.185:3000/agent-versions/lts"
     ok, changed_files, server_version = get_new_version_info(server_url)
     if ok:
         LATEST_VERSION = server_version

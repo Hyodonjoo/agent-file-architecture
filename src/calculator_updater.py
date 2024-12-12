@@ -14,7 +14,7 @@ from os.path import isfile, join
 
 # 프로그램 이름과 디렉토리 설정
 program_name = "Calculator.exe"
-program_dir = "../../dist/Calculator/"
+program_dir = "dist/Calculator/"
 
 # 디렉토리의 모든 파일을 대상 디렉토리로 이동하는 함수
 
