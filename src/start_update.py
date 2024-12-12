@@ -22,7 +22,8 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
 
     serverURL = "http://52.79.222.121:3000/"    
 
-    new_version_dir = os.path.join(os.getcwd(), "dist", "Calculator/")
+    new_version_dir = os.path.join((os.getcwd()), "dist", "Calculator/")
+    print("[DEBUG] new_version_dir: ", new_version_dir)
     program_name = "Calculator.exe"
 
     # 다운로드 디렉토리 생성
@@ -47,13 +48,13 @@ def start_update(update_listbox, new_text_listbox, update_status_label, progress
                     current_version = lines[0].strip()
         print(f"[DEBUG] 현재 버전: {current_version}, 서버 버전: {server_version}")
 
-        # 서버 버전과 현재 버전을 비교
-        if current_version == server_version:
-            update_status_label.config(text="업데이트 필요 없음: 최신 버전입니다.")
-            add_message_to_listbox(new_text_listbox, "현재 최신 버전을 사용 중입니다.")
-            print("[DEBUG] 서버 버전과 로컬 버전이 동일합니다. on_update_complete_message() 호출")
-            on_update_complete_message()  # 업데이트 완료 후 처리 호출
-            return
+        # # 서버 버전과 현재 버전을 비교
+        # if current_version == server_version:
+        #     update_status_label.config(text="업데이트 필요 없음: 최신 버전입니다.")
+        #     add_message_to_listbox(new_text_listbox, "현재 최신 버전을 사용 중입니다.")
+        #     print("[DEBUG] 서버 버전과 로컬 버전이 동일합니다. on_update_complete_message() 호출")
+        #     on_update_complete_message()  # 업데이트 완료 후 처리 호출
+        #     return
 
     except Exception as e:
         print(f"[ERROR] 최신 버전 정보 가져오기 실패: {e}")
