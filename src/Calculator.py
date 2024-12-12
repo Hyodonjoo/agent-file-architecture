@@ -1,13 +1,11 @@
 import os
 import time
-from tkinter import messagebox
-import tkinter as tk
-import subprocess
 import threading
-
-from tkinter import Toplevel, Label, Text
+import tkinter as tk
+from tkinter import messagebox, Toplevel, Label, Text
 from datetime import datetime
-from fetch_message import monitor_server_messages, fetch_all_messages  # 서버 메시지 함수 임포트
+
+from fetch_message import monitor_server_messages, fetch_all_messages
 import add_module
 import subtract_module
 import multiply_module
@@ -24,10 +22,8 @@ WEEKDAY_MAP = {
     'Sunday': '일'
 }
 
-# 현재 버전과 최신 버전 비교
 last_update_file_path = "../../last_update.txt"
 
-# 현재 버전 불러오기
 if os.path.exists(last_update_file_path):
     with open(last_update_file_path, "r") as file:
         lines = file.readlines()
@@ -35,9 +31,8 @@ if os.path.exists(last_update_file_path):
 else:
     CURRENT_VERSION = "0"
 
-# 최신 버전 정보 가져오기
 LATEST_VERSION = "unknown"
-CHANGED_FILES = []  # 변경된 파일 목록 저장용
+CHANGED_FILES = []
 try:
     server_url = "http://52.79.222.121:3000/agent-versions/lts"
     ok, changed_files, server_version = get_new_version_info(server_url)
@@ -49,12 +44,11 @@ try:
 except Exception as e:
     print(f"[ERROR] 최신 버전 정보를 가져오는 중 오류 발생: {e}")
 
-FETCH_INTERVAL = 5  # 메시지 확인 주기 (초)
+FETCH_INTERVAL = 5
 is_manual_check = False
 
 def check_for_updates_async(root):
-    global is_manual_check  # 전역 변수를 사용한다고 명시
-    # 현재 버전 불러오기
+    global is_manual_check
     if os.path.exists(last_update_file_path):
         with open(last_update_file_path, "r") as file:
             lines = file.readlines()
@@ -63,30 +57,29 @@ def check_for_updates_async(root):
         CURRENT_VERSION = "0"
 
     def update_process():
-        global is_manual_check  # 전역 변수를 사용한다고 명시
+        global is_manual_check
         if CURRENT_VERSION == LATEST_VERSION:
             if is_manual_check:
                 messagebox.showinfo("업데이트 확인", "현재 최신 버전입니다.")
-            is_manual_check = False  # 확인 후 플래그 초기화
+            is_manual_check = False
             return
 
-        # 새 버전이 있을 때만 업데이트 확인 메시지 표시
         response = messagebox.askyesno("업데이트 필요", "새로운 업데이트가 있습니다. 업데이트를 진행하시겠습니까?")
         if response:
             root.after(0, lambda: call_update_ui_main(root))
-        is_manual_check = False  # 확인 후 플래그 초기화
+        is_manual_check = False
 
     threading.Thread(target=update_process, daemon=True).start()
 
 def manual_check_for_updates(root):
     global is_manual_check
-    is_manual_check = True  # 버튼 클릭으로 수동 확인을 수행하도록 플래그 설정
+    is_manual_check = True
     check_for_updates_async(root)
 
 def call_update_ui_main(root):
     try:
-        import update_ui_main  # 모듈로 import
-        update_ui_main.main()  # main 함수 호출
+        import update_ui_main
+        update_ui_main.main()
         messagebox.showinfo("업데이트 완료", "업데이트가 성공적으로 완료되었습니다.")
     except ModuleNotFoundError:
         messagebox.showerror("업데이트 오류", "update_ui_main 모듈을 찾을 수 없습니다.")
@@ -123,15 +116,15 @@ def press_key(key):
 
 def update_messages():
     global all_messages_cache
-    all_messages_cache = fetch_all_messages()  
-    messages.delete(0, tk.END)  
+    all_messages_cache = fetch_all_messages()
+    messages.delete(0, tk.END)
     if all_messages_cache:
-        for msg in reversed(all_messages_cache):             
+        for msg in reversed(all_messages_cache):
             original_date = datetime.fromisoformat(msg['date'].replace('Z', '+00:00'))
-            formatted_date = original_date.strftime("%m-%d %H:%M:%S")           
+            formatted_date = original_date.strftime("%m-%d %H:%M:%S")
             messages.insert(tk.END, f"[{formatted_date}]")
             messages.insert(tk.END, f"{msg['message']}")
-            messages.insert(tk.END, "")             
+            messages.insert(tk.END, "")
     else:
         print("No messages fetched from the server.")
 
@@ -143,13 +136,13 @@ def periodic_update_messages():
 def on_message_click(event):
     selection = messages.curselection()
     if selection:
-        index = selection[0]        
-        if index % 3 == 1:  
-            msg = all_messages_cache[len(all_messages_cache) - 1 - (index // 3)] 
+        index = selection[0]
+        if index % 3 == 1:
+            msg = all_messages_cache[len(all_messages_cache) - 1 - (index // 3)]
             original_date = datetime.fromisoformat(msg['date'].replace('Z', '+00:00'))
             weekday = WEEKDAY_MAP[original_date.strftime("%A")]
             detailed_date = original_date.strftime(f"%Y년 %m월 %d일 ({weekday})  %H:%M:%S")
-            
+
             detail_window = Toplevel(root)
             detail_window.title("상세 메시지")
             detail_window.geometry("400x300")
@@ -162,41 +155,93 @@ def on_message_click(event):
 
             message_text = Text(detail_window, wrap='word', font=('Arial', 12), padx=10, pady=10)
             message_text.insert(tk.END, msg['message'])
-            message_text.config(state='disabled')  
+            message_text.config(state='disabled')
             message_text.pack(expand=True, fill='both')
 
 def toggle_message_panel():
     global message_panel_visible
     if message_panel_visible:
-        # 메시지 창 숨기기
         messages_label.grid_remove()
         messages.grid_remove()
         update_button.grid_remove()
-        toggle_button.config(text="▶")
+        toggle_button.set_text("▶")
     else:
-        # 메시지 창 보이기
         messages_label.grid()
         messages.grid()
         update_button.grid()
-        toggle_button.config(text="◀")
+        toggle_button.set_text("◀")
     message_panel_visible = not message_panel_visible
 
-# 창 생성
+class RoundedButton(tk.Canvas):
+    def __init__(self, parent, width=80, height=40, corner_radius=15, bg="#B0E0E6", fg="black", font=('Arial',14),
+                 text="", command=None):
+        super().__init__(parent, width=width, height=height, highlightthickness=0, bg=parent['bg'])
+        self.width = width
+        self.height = height
+        self.corner_radius = corner_radius
+        self.bg_color = bg
+        self.fg = fg
+        self.font = font
+        self.text = text
+        self.command = command
+        
+        self.border_color = "#A0C0D0"
+        self.border_width = 2
+
+        self.text_id = None
+
+        self.draw_button()
+        self.bind("<Button-1>", self.on_click)
+
+    def draw_button(self):
+        self.delete("all")
+        w = self.width
+        h = self.height
+        r = self.corner_radius
+        bw = self.border_width
+
+        self.create_arc((0, 0, 2*r, 2*r), start=90, extent=90, fill=self.bg_color, outline="", width=0)
+        self.create_arc((w-2*r, 0, w, 2*r), start=0, extent=90, fill=self.bg_color, outline="", width=0)
+        self.create_arc((w-2*r, h-2*r, w, h), start=270, extent=90, fill=self.bg_color, outline="", width=0)
+        self.create_arc((0, h-2*r, 2*r, h), start=180, extent=90, fill=self.bg_color, outline="", width=0)
+
+        self.create_rectangle((r, 0, w-r, h), fill=self.bg_color, outline="", width=0)
+        self.create_rectangle((0, r, w, h-r), fill=self.bg_color, outline="", width=0)
+
+       
+        self.text_id = self.create_text(w/2, h/2, text=self.text, fill=self.fg, font=self.font)
+
+        self.create_arc((0, 0, 2*r, 2*r), start=90, extent=90, style='arc', outline=self.border_color, width=bw)
+        self.create_arc((w-2*r, 0, w, 2*r), start=0, extent=90, style='arc', outline=self.border_color, width=bw)
+        self.create_arc((w-2*r, h-2*r, w, h), start=270, extent=90, style='arc', outline=self.border_color, width=bw)
+        self.create_arc((0, h-2*r, 2*r, h), start=180, extent=90, style='arc', outline=self.border_color, width=bw)
+       
+        self.create_line(r, 0, w-r, 0, fill=self.border_color, width=bw)
+        self.create_line(w-r, h, r, h, fill=self.border_color, width=bw)      
+        self.create_line(0, r, 0, h-r, fill=self.border_color, width=bw)     
+        self.create_line(w, r, w, h-r, fill=self.border_color, width=bw)
+
+    def on_click(self, event):
+        if self.command:
+            self.command()
+
+    def set_text(self, new_text):
+        self.text = new_text
+        self.draw_button()
+
 root = tk.Tk()
 root.title("계산기")
 
-# 만약 변경된 파일이 있을 경우 즉시 업데이트 진행
+root.config(bg="#ADD8E6")
+
 if CHANGED_FILES:
     call_update_ui_main(root)
 
-# 창 크기 고정
 root.resizable(width=False, height=False)
 
-# 입력창 생성
-entry = tk.Entry(root, width=20, font=('Arial', 18), bd=8, insertwidth=4, justify='right')
-entry.grid(row=0, column=0, columnspan=4)
+entry = tk.Entry(root, width=20, font=('Arial', 18), bd=1, insertwidth=4, justify='right', bg="#E0FFFF", fg="black", relief="sunken")
+entry.grid(row=0, column=0, columnspan=4, pady=5, padx=5)
 
-# 버튼 레이아웃
 buttons = [
     '7', '8', '9', '/',
     '4', '5', '6', '*',
@@ -207,45 +252,39 @@ buttons = [
 row_val = 1
 col_val = 0
 
+def make_press_func(k):
+    return lambda: press_key(k)
+
 for button in buttons:
-    tk.Button(root, text=button, padx=20, pady=20, font=('Arial', 18), command=lambda key=button: press_key(key)).grid(row=row_val, column=col_val)
+    rb = RoundedButton(root, width=60, height=50, corner_radius=15, bg="#B0E0E6", fg="black",
+                       font=('Arial',18), text=button, command=make_press_func(button))
+    rb.grid(row=row_val, column=col_val, padx=5, pady=5)
     col_val += 1
     if col_val > 3:
         col_val = 0
         row_val += 1
 
-# 메시지 창 토글 버튼 추가 (계산기와 메시지 목록 창 사이에 위치)
-message_panel_visible = True  # 메시지 창이 보이는지 여부를 추적하는 플래그
-toggle_button = tk.Button(root, text="◀", font=('Arial', 14), command=toggle_message_panel, height=15)  # 버튼 높이 조정
-toggle_button.grid(row=1, column=4, rowspan=5, padx=5, sticky='ns')  # 계산기와 메시지 목록 창 사이에 위치
+message_panel_visible = True
 
-# 관리자 메시지 라벨 생성
-messages_label = Label(root, text="관리자 메시지", font=('Arial', 14), pady=5)
+toggle_button = RoundedButton(root, width=40, height=200, corner_radius=15, bg="#B0E0E6", fg="black",
+                              font=('Arial',14), text="◀", command=toggle_message_panel)
+toggle_button.grid(row=1, column=4, rowspan=5, padx=5, sticky='ns')
+
+messages_label = Label(root, text="관리자 메시지", font=('Arial', 14), pady=5, bg="#ADD8E6")
 messages_label.grid(row=0, column=5, padx=10, pady=5)
 
-# 메시지 표시 창 생성 (우측에 배치)
-messages = tk.Listbox(root, width=20, height=15, font=('Arial', 12))
+messages = tk.Listbox(root, width=20, height=15, font=('Arial', 12), bg="#E0FFFF")
 messages.grid(row=1, column=5, rowspan=5, padx=10, pady=10)
 messages.bind("<Double-1>", on_message_click)
 
-# 업데이트 버튼 생성 (메시지 창 아래에 배치)
-update_button = tk.Button(root, text="업데이트 실행", padx=20, pady=10, font=('Arial', 14), command=lambda: manual_check_for_updates(root))
+update_button = RoundedButton(root, width=100, height=50, corner_radius=15, bg="#B0E0E6", fg="black",
+                              font=('Arial',14), text="업데이트", command=lambda: manual_check_for_updates(root))
 update_button.grid(row=6, column=5, pady=10)
 
-# 서버 메시지 모니터링 쓰레드 시작
 threading.Thread(target=monitor_server_messages, daemon=True).start()
-
-# 메시지 캐시 초기화
 all_messages_cache = []
-
-# 프로그램 실행 시 초기 메시지 목록 불러오기
 update_messages()
-
-# 프로그램 실행 시 주기적인 메시지 업데이트 쓰레드 시작
 threading.Thread(target=periodic_update_messages, daemon=True).start()
-
-# 프로그램 실행 시 업데이트 확인
 check_for_updates_async(root)
 
-# GUI 루프 실행
 root.mainloop()

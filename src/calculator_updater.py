@@ -9,15 +9,15 @@ import psutil  # 시스템 및 프로세스 모니터링 라이브러리
 from urllib3.util.retry import Retry  # HTTP 요청 시 재시도 설정을 위한 라이브러리
 from requests.adapters import HTTPAdapter  # HTTP 요청 시 재시도 어댑터 설정을 위한 라이브러리
 import hashlib
+import os
 from os import listdir, unlink
 from os.path import isfile, join
 
 # 프로그램 이름과 디렉토리 설정
 program_name = "Calculator.exe"
-program_dir = "../../dist/Calculator/"
+program_dir = "dist/Calculator/"
 
 # 디렉토리의 모든 파일을 대상 디렉토리로 이동하는 함수
-
 
 def backup_contents(src_dir, dest_dir):
     src_path = Path(src_dir)  # 소스 디렉토리 경로 설정
@@ -92,7 +92,9 @@ def get_new_version_info(url):
 
         if response_data["ok"]:
             result = response_data["result"]
-            installed_files = get_installed_files(program_dir)
+            program_dir_2 = os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), program_dir) 
+            print(f"program_dir_2: {program_dir_2}")           
+            installed_files = get_installed_files(program_dir_2)
             filenames = [
                 fileInfo["filename"]
                 for fileInfo in result["fileInfos"]
