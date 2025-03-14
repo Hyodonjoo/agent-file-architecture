@@ -1,6 +1,6 @@
 # 자동 업데이트 및 오류 복구 시스템 에이전트 
 아래 링크에 있는 서버 코드와 통신
-<br>[자동 업데이트 및 오류 복구 시스템 서버 코드](https://github.com/Shin-NY/version-management-server.git)
+<br>[자동 업데이트 및 오류 복구 시스템 서버 코드](https://github.com/Hyodonjoo/version-management-server.git)
 
 업데이트를 위한 기본적인 계산기를 에이전트 대상으로 설정
 
